@@ -2,7 +2,8 @@
     margin-bottom: 2rem;
     padding: 1rem;
     border-radius: 8px;
-    background-color: #f8f9fa;
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
 }
 
 .token {
@@ -22,18 +23,18 @@
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    color: #0d6efd;
+    color: var(--bs-primary);
 }
 
 .execution-time {
     font-size: 0.9rem;
-    color: #6c757d;
+    color: var(--bs-secondary);
     margin-bottom: 0.5rem;
 }
 
 .token-count {
     font-size: 0.9rem;
-    color: #198754;
+    color: var(--bs-success);
     margin-bottom: 1rem;
 }
 
@@ -43,7 +44,7 @@
 }
 
 .comparison-table th {
-    background-color: #f8f9fa;
+    background-color: var(--bs-body-bg);
 }
 
 .loading {
@@ -72,15 +73,62 @@ body {
     width: 100%;
     height: 60px;
     line-height: 60px;
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
+    background-color: var(--bs-body-bg);
+    border-top: 1px solid var(--bs-border-color);
 }
 
 .footer a {
-    color: #0d6efd;
+    color: var(--bs-primary);
     text-decoration: none;
 }
 
 .footer a:hover {
     text-decoration: underline;
+}
+
+/* Dark mode toggle button */
+#darkModeToggle {
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#darkModeToggle i {
+    font-size: 1.2rem;
+}
+
+/* Card styles */
+.card {
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+}
+
+/* Form control styles */
+.form-control {
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-body-color);
+}
+
+.form-control:focus {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+/* Table styles */
+.table {
+    color: var(--bs-body-color);
+}
+
+.table th {
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+}
+
+.table td {
+    border-color: var(--bs-border-color);
 } 
