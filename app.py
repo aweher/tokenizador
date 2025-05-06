@@ -9,6 +9,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.middleware.gzip import GZipMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 from pydantic import BaseModel
 from transformers import AutoTokenizer
 from nltk.tokenize import word_tokenize
@@ -24,6 +27,19 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Middleware para prevenir cacheo
+class NoCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
+
+# Añadir middlewares
+app.add_middleware(NoCacheMiddleware)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
@@ -33,8 +49,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Montar archivos estáticos
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Montar archivos estáticos con headers personalizados
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 
 class TextInput(BaseModel):
     text: str
@@ -57,7 +73,11 @@ def medir_tiempo(func):
 
 @app.get("/")
 async def read_root():
-    return FileResponse("static/index.html")
+    response = FileResponse("static/index.html")
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 @app.post("/tokenize", response_model=List[TokenizationResult])
 async def tokenize_text(input_data: TextInput):

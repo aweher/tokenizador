@@ -4,6 +4,55 @@ const TOKEN_COLORS = [
     '#FF33A8', '#33FFD4', '#A833FF', '#33FFA8', '#FF33D4'
 ];
 
+// Texto por defecto
+const DEFAULT_TEXT = "The couch has accepted me as one of its own, and I can't betray its trust.";
+
+// Función para cargar el texto por defecto
+function loadDefaultText() {
+    try {
+        console.log('Cargando texto por defecto...');
+        setTextAndTokenize(DEFAULT_TEXT);
+    } catch (error) {
+        console.error('Error al cargar el texto por defecto:', error);
+        showError(`Error al cargar el texto por defecto: ${error.message}`);
+    }
+}
+
+// Función para establecer el texto y tokenizar
+function setTextAndTokenize(text) {
+    const textInput = document.getElementById('textInput');
+    if (!textInput) {
+        console.error('No se encontró el elemento textInput');
+        return;
+    }
+    
+    textInput.value = text;
+    
+    // Disparar el evento de tokenización automáticamente
+    const form = document.getElementById('tokenizeForm');
+    if (form) {
+        console.log('Disparando tokenización automática...');
+        form.dispatchEvent(new Event('submit'));
+    } else {
+        console.error('No se encontró el formulario de tokenización');
+    }
+}
+
+// Cargar el texto por defecto cuando se carga la página
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM cargado, iniciando carga del texto...');
+    loadDefaultText();
+    
+    // También intentar cargar el texto cuando el formulario esté listo
+    const form = document.getElementById('tokenizeForm');
+    if (form) {
+        form.addEventListener('load', () => {
+            console.log('Formulario cargado, intentando cargar texto nuevamente...');
+            loadDefaultText();
+        });
+    }
+});
+
 // Función para generar un color aleatorio
 function getRandomColor() {
     return TOKEN_COLORS[Math.floor(Math.random() * TOKEN_COLORS.length)];
@@ -168,4 +217,4 @@ document.getElementById('tokenizeForm').addEventListener('submit', async (e) => 
         console.error('Error:', error);
         showError(`Error al procesar el texto: ${error.message}`);
     }
-}); 
+});
