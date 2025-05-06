@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokenizador de Texto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Tokenizador de Texto</h1>
+        
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="tokenizeForm">
+                            <div class="mb-3">
+                                <label for="textInput" class="form-label">Ingrese el texto a tokenizar:</label>
+                                <textarea class="form-control" id="textInput" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Tokenizar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="mt-4">
+            <!-- Los resultados se mostrarán aquí -->
+        </div>
+
+        <div id="comparisonTable" class="mt-4">
+            <!-- La tabla comparativa se mostrará aquí -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html> 

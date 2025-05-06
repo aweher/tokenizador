@@ -1,0 +1,11 @@
+---
+services:
+  web:
+    build: .
+    ports:
+      - "38777:8000"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONPATH=/app
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app 
