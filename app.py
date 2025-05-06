@@ -5,10 +5,10 @@ import time
 import nltk
 import spacy
 import tiktoken
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
@@ -17,15 +17,48 @@ from transformers import AutoTokenizer
 from nltk.tokenize import word_tokenize
 from typing import List, Dict, Any
 import uvicorn
+import os
+from collections import defaultdict
+from datetime import datetime, timedelta
 
-# Descargar recursos de NLTK
-nltk.download('punkt', quiet=True)
+# Descargar recursos de NLTK con manejo de errores
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    try:
+        nltk.download('punkt', quiet=True)
+    except Exception as e:
+        print(f"Warning: Could not download NLTK punkt data: {e}")
 
-app = FastAPI(
-    title="Tokenizador API",
-    description="API para comparar diferentes métodos de tokenización",
-    version="1.0.0"
-)
+# Implementación de rate limiting
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, requests_per_minute: int = 5):
+        super().__init__(app)
+        self.requests_per_minute = requests_per_minute
+        self.requests = defaultdict(list)
+
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path == "/tokenize":
+            client_ip = request.client.host
+            now = datetime.now()
+            
+            # Limpiar solicitudes antiguas
+            self.requests[client_ip] = [
+                req_time for req_time in self.requests[client_ip]
+                if now - req_time < timedelta(minutes=1)
+            ]
+            
+            # Verificar límite
+            if len(self.requests[client_ip]) >= self.requests_per_minute:
+                return JSONResponse(
+                    status_code=429,
+                    content={"detail": "Too many requests. Please try again in a minute."}
+                )
+            
+            # Registrar nueva solicitud
+            self.requests[client_ip].append(now)
+        
+        return await call_next(request)
 
 # Middleware para prevenir cacheo
 class NoCacheMiddleware(BaseHTTPMiddleware):
@@ -36,8 +69,15 @@ class NoCacheMiddleware(BaseHTTPMiddleware):
         response.headers["Expires"] = "0"
         return response
 
+app = FastAPI(
+    title="Tokenizador API",
+    description="API para comparar diferentes métodos de tokenización",
+    version="1.0.0"
+)
+
 # Añadir middlewares
 app.add_middleware(NoCacheMiddleware)
+app.add_middleware(RateLimitMiddleware, requests_per_minute=5)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Configurar CORS
@@ -80,7 +120,7 @@ async def read_root():
     return response
 
 @app.post("/tokenize", response_model=List[TokenizationResult])
-async def tokenize_text(input_data: TextInput):
+async def tokenize_text(request: Request, input_data: TextInput):
     texto = input_data.text
     results = []
 
